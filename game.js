@@ -16,23 +16,23 @@ const ball = {
     speed: 4
 };
 
-const paddleHeight = 80;
-const paddleWidth = 10;
+const paddleWidth = 80;
+const paddleHeight = 10;
 const playerPaddle = {
-    y: canvas.height / 2 - paddleHeight / 2,
-    x: 50,
-    height: paddleHeight,
+    x: canvas.width / 2 - paddleWidth / 2,
+    y: canvas.height - 50,
     width: paddleWidth,
-    dy: 5,
+    height: paddleHeight,
+    dx: 5,
     score: 0
 };
 
 const computerPaddle = {
-    y: canvas.height / 2 - paddleHeight / 2,
-    x: canvas.width - 50 - paddleWidth,
-    height: paddleHeight,
+    x: canvas.width / 2 - paddleWidth / 2,
+    y: 50,
     width: paddleWidth,
-    dy: 4,
+    height: paddleHeight,
+    dx: 4,
     score: 0
 };
 
@@ -53,8 +53,8 @@ function drawPaddle(paddle) {
 function drawCenterLine() {
     ctx.beginPath();
     ctx.setLineDash([5, 15]);
-    ctx.moveTo(canvas.width / 2, 0);
-    ctx.lineTo(canvas.width / 2, canvas.height);
+    ctx.moveTo(0, canvas.height / 2);
+    ctx.lineTo(canvas.width, canvas.height / 2);
     ctx.strokeStyle = 'white';
     ctx.stroke();
     ctx.setLineDash([]);
@@ -78,49 +78,49 @@ function draw() {
 // Movement and controls
 function movePaddles() {
     // Computer AI
-    const paddleCenter = computerPaddle.y + computerPaddle.height / 2;
-    const ballCenter = ball.y;
+    const paddleCenter = computerPaddle.x + computerPaddle.width / 2;
+    const ballCenter = ball.x;
     
     if (paddleCenter < ballCenter - 35) {
-        computerPaddle.y += computerPaddle.dy;
+        computerPaddle.x += computerPaddle.dx;
     } else if (paddleCenter > ballCenter + 35) {
-        computerPaddle.y -= computerPaddle.dy;
+        computerPaddle.x -= computerPaddle.dx;
     }
 
     // Keep paddles within canvas
-    playerPaddle.y = Math.max(0, Math.min(canvas.height - playerPaddle.height, playerPaddle.y));
-    computerPaddle.y = Math.max(0, Math.min(canvas.height - computerPaddle.height, computerPaddle.y));
+    playerPaddle.x = Math.max(0, Math.min(canvas.width - playerPaddle.width, playerPaddle.x));
+    computerPaddle.x = Math.max(0, Math.min(canvas.width - computerPaddle.width, computerPaddle.x));
 }
 
 function moveBall() {
     ball.x += ball.dx;
     ball.y += ball.dy;
 
-    // Top and bottom collisions
-    if (ball.y + ball.size > canvas.height || ball.y - ball.size < 0) {
-        ball.dy *= -1;
+    // Left and right collisions
+    if (ball.x + ball.size > canvas.width || ball.x - ball.size < 0) {
+        ball.dx *= -1;
     }
 
     // Paddle collisions
     if (checkPaddleCollision(playerPaddle) || checkPaddleCollision(computerPaddle)) {
-        ball.dx *= -1.1; // Increase speed slightly
+        ball.dy *= -1.1; // Increase speed slightly
     }
 
     // Score points
-    if (ball.x + ball.size > canvas.width) {
+    if (ball.y - ball.size < 0) {
         playerPaddle.score++;
         resetBall();
-    } else if (ball.x - ball.size < 0) {
+    } else if (ball.y + ball.size > canvas.height) {
         computerPaddle.score++;
         resetBall();
     }
 }
 
 function checkPaddleCollision(paddle) {
-    return ball.x - ball.size < paddle.x + paddle.width &&
-           ball.x + ball.size > paddle.x &&
-           ball.y > paddle.y &&
-           ball.y < paddle.y + paddle.height;
+    return ball.y - ball.size < paddle.y + paddle.height &&
+           ball.y + ball.size > paddle.y &&
+           ball.x > paddle.x &&
+           ball.x < paddle.x + paddle.width;
 }
 
 function resetBall() {
@@ -132,23 +132,23 @@ function resetBall() {
 
 // Keyboard controls
 const keys = {
-    w: false,
-    s: false
+    a: false,
+    d: false
 };
 
 document.addEventListener('keydown', (e) => {
-    if (e.key.toLowerCase() === 'w') keys.w = true;
-    if (e.key.toLowerCase() === 's') keys.s = true;
+    if (e.key.toLowerCase() === 'a') keys.a = true;
+    if (e.key.toLowerCase() === 'd') keys.d = true;
 });
 
 document.addEventListener('keyup', (e) => {
-    if (e.key.toLowerCase() === 'w') keys.w = false;
-    if (e.key.toLowerCase() === 's') keys.s = false;
+    if (e.key.toLowerCase() === 'a') keys.a = false;
+    if (e.key.toLowerCase() === 'd') keys.d = false;
 });
 
 function handlePlayerInput() {
-    if (keys.w) playerPaddle.y -= playerPaddle.dy;
-    if (keys.s) playerPaddle.y += playerPaddle.dy;
+    if (keys.a) playerPaddle.x -= playerPaddle.dx;
+    if (keys.d) playerPaddle.x += playerPaddle.dx;
 }
 
 // Initialize game loop
