@@ -3,8 +3,8 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 // Set canvas size
-canvas.width = 800;
-canvas.height = 400;
+canvas.width = 400;
+canvas.height = 600;
 
 // Game objects
 const ball = {
@@ -16,11 +16,11 @@ const ball = {
     speed: 4
 };
 
-const paddleWidth = 80;
+const paddleWidth = 60;
 const paddleHeight = 10;
 const playerPaddle = {
     x: canvas.width / 2 - paddleWidth / 2,
-    y: canvas.height - 50,
+    y: canvas.height - 30,
     width: paddleWidth,
     height: paddleHeight,
     dx: 5,
@@ -29,7 +29,7 @@ const playerPaddle = {
 
 const computerPaddle = {
     x: canvas.width / 2 - paddleWidth / 2,
-    y: 50,
+    y: 30,
     width: paddleWidth,
     height: paddleHeight,
     dx: 4,
