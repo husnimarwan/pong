@@ -13,10 +13,10 @@ const ball = {
     size: 10,
     dx: 4,
     dy: 4,
-    speed: 4
+    speed: 1.5
 };
 
-const paddleWidth = 60;
+const paddleWidth = 80;
 const paddleHeight = 10;
 const playerPaddle = {
     x: canvas.width / 2 - paddleWidth / 2,
