@@ -11,9 +11,10 @@ const ball = {
     x: canvas.width / 2,
     y: canvas.height / 2,
     size: 10,
-    dx: 4,
-    dy: 4,
-    speed: 1.5
+    dx: 0,
+    dy: 0,
+    speed: 3,
+    maxSpeed: 8
 };
 
 const paddleWidth = 80;
@@ -103,7 +104,18 @@ function moveBall() {
 
     // Paddle collisions
     if (checkPaddleCollision(playerPaddle) || checkPaddleCollision(computerPaddle)) {
-        ball.dy *= -1.1; // Increase speed slightly
+        ball.dy *= -1;
+        
+        // Add a small angle change based on where the ball hits the paddle
+        const paddle = ball.dy < 0 ? playerPaddle : computerPaddle;
+        const hitPoint = (ball.x - paddle.x) / paddle.width;
+        ball.dx = (hitPoint - 0.5) * 6; // Max horizontal speed component
+        
+        // Ensure consistent overall speed
+        const currentSpeed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
+        const speedFactor = ball.speed / currentSpeed;
+        ball.dx *= speedFactor;
+        ball.dy *= speedFactor;
     }
 
     // Score points
@@ -126,8 +138,11 @@ function checkPaddleCollision(paddle) {
 function resetBall() {
     ball.x = canvas.width / 2;
     ball.y = canvas.height / 2;
-    ball.dx = (Math.random() > 0.5 ? 1 : -1) * ball.speed;
-    ball.dy = (Math.random() > 0.5 ? 1 : -1) * ball.speed;
+    
+    // Set initial angle between -45 and 45 degrees
+    const angle = (Math.random() - 0.5) * Math.PI / 2;
+    ball.dx = ball.speed * Math.sin(angle);
+    ball.dy = ball.speed * Math.cos(angle) * (Math.random() > 0.5 ? 1 : -1);
 }
 
 // Keyboard controls
