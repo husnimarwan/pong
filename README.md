@@ -1,6 +1,8 @@
 # Vertical Pong Game
 
-A modern take on the classic Pong game, implemented in vanilla JavaScript with a vertical gameplay orientation. The game features a player-controlled paddle at the bottom and a computer-controlled opponent at the top.
+A modern take on the classic Pong game, implemented in vanilla JavaScript with a vertical gameplay orientation. The game features a player-controlled paddle at the top and a computer-controlled opponent at the bottom.
+
+![Pong Game Screenshot](screenshot.png)
 
 ## Features
 
@@ -76,3 +78,7 @@ Feel free to fork this project and submit pull requests for any improvements!
 ## License
 
 This project is open source and available under the MIT License.
+
+## Contributing
+
+Feel free to fork this project and submit pull requests for any improvements!
