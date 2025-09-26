@@ -24,7 +24,7 @@ const playerPaddle = {
     y: canvas.height - 30,
     width: paddleWidth,
     height: paddleHeight,
-    dx: 5,
+    dx: 6, // Increased player speed for better control
     score: 0
 };
 
@@ -33,7 +33,7 @@ const computerPaddle = {
     y: 30,
     width: paddleWidth,
     height: paddleHeight,
-    dx: 4,
+    dx: 3, // Reduced speed to make it easier
     score: 0
 };
 
@@ -78,14 +78,23 @@ function draw() {
 
 // Movement and controls
 function movePaddles() {
-    // Computer AI
+    // Computer AI - make it less accurate with some randomness and delayed reaction
     const paddleCenter = computerPaddle.x + computerPaddle.width / 2;
     const ballCenter = ball.x;
     
-    if (paddleCenter < ballCenter - 35) {
-        computerPaddle.x += computerPaddle.dx;
-    } else if (paddleCenter > ballCenter + 35) {
-        computerPaddle.x -= computerPaddle.dx;
+    // Add more randomness and delayed reaction to make the AI less perfect
+    const reactionThreshold = 35 + Math.random() * 25; // Random threshold between 35-60, making it less responsive
+    
+    // Only move if the ball is moving toward the computer paddle and not too close to center
+    if (ball.dy < 0) {
+        // Add a small chance that the computer doesn't react at all
+        if (Math.random() > 0.15) { // 15% chance of not reacting at all
+            if (paddleCenter < ballCenter - reactionThreshold) {
+                computerPaddle.x += computerPaddle.dx * 0.7; // Slower movement
+            } else if (paddleCenter > ballCenter + reactionThreshold) {
+                computerPaddle.x -= computerPaddle.dx * 0.7; // Slower movement
+            }
+        }
     }
 
     // Keep paddles within canvas
@@ -104,7 +113,7 @@ function moveBall() {
 
     // Paddle collisions
     if (checkPaddleCollision(playerPaddle) && ball.dy > 0) { // Only if ball is moving downward
-        // Bounce off player paddle (bottom)
+        // Bounce off player paddle (bottom) - make player hits more favorable
         ball.dy = -Math.abs(ball.dy); // Ensure it moves upward
         
         // Add a small angle change based on where the ball hits the paddle
@@ -120,12 +129,14 @@ function moveBall() {
         // Add a small offset to prevent sticking
         ball.y = playerPaddle.y - ball.size - 1; // Move ball slightly above the paddle
     } else if (checkPaddleCollision(computerPaddle) && ball.dy < 0) { // Only if ball is moving upward
-        // Bounce off computer paddle (top)
+        // Bounce off computer paddle (top) - make computer hits less predictable
         ball.dy = Math.abs(ball.dy); // Ensure it moves downward
         
         // Add a small angle change based on where the ball hits the paddle
         const hitPoint = (ball.x - computerPaddle.x) / computerPaddle.width;
-        ball.dx = (hitPoint - 0.5) * 6; // Max horizontal speed component
+        // Make computer paddle hits slightly more random for less precision
+        const computerHitVariation = 0.7 + Math.random() * 0.4; // Random factor between 0.7-1.1
+        ball.dx = (hitPoint - 0.5) * 6 * computerHitVariation;
         
         // Ensure consistent overall speed
         const currentSpeed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
