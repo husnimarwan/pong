@@ -103,12 +103,12 @@ function moveBall() {
     }
 
     // Paddle collisions
-    if (checkPaddleCollision(playerPaddle) || checkPaddleCollision(computerPaddle)) {
-        ball.dy *= -1;
+    if (checkPaddleCollision(playerPaddle) && ball.dy > 0) { // Only if ball is moving downward
+        // Bounce off player paddle (bottom)
+        ball.dy = -Math.abs(ball.dy); // Ensure it moves upward
         
         // Add a small angle change based on where the ball hits the paddle
-        const paddle = ball.dy < 0 ? playerPaddle : computerPaddle;
-        const hitPoint = (ball.x - paddle.x) / paddle.width;
+        const hitPoint = (ball.x - playerPaddle.x) / playerPaddle.width;
         ball.dx = (hitPoint - 0.5) * 6; // Max horizontal speed component
         
         // Ensure consistent overall speed
@@ -116,33 +116,83 @@ function moveBall() {
         const speedFactor = ball.speed / currentSpeed;
         ball.dx *= speedFactor;
         ball.dy *= speedFactor;
+        
+        // Add a small offset to prevent sticking
+        ball.y = playerPaddle.y - ball.size - 1; // Move ball slightly above the paddle
+    } else if (checkPaddleCollision(computerPaddle) && ball.dy < 0) { // Only if ball is moving upward
+        // Bounce off computer paddle (top)
+        ball.dy = Math.abs(ball.dy); // Ensure it moves downward
+        
+        // Add a small angle change based on where the ball hits the paddle
+        const hitPoint = (ball.x - computerPaddle.x) / computerPaddle.width;
+        ball.dx = (hitPoint - 0.5) * 6; // Max horizontal speed component
+        
+        // Ensure consistent overall speed
+        const currentSpeed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
+        const speedFactor = ball.speed / currentSpeed;
+        ball.dx *= speedFactor;
+        ball.dy *= speedFactor;
+        
+        // Add a small offset to prevent sticking
+        ball.y = computerPaddle.y + computerPaddle.height + ball.size + 1; // Move ball slightly below the paddle
     }
 
-    // Score points
+    // Score points - only when ball clearly passes the paddle
     if (ball.y - ball.size < 0) {
-        playerPaddle.score++;
-        resetBall();
+        // Ensure the ball has completely passed the top paddle before scoring
+        if (ball.dy < 0) { // Only if the ball was moving upward
+            playerPaddle.score++;
+            resetBall();
+        }
     } else if (ball.y + ball.size > canvas.height) {
-        computerPaddle.score++;
-        resetBall();
+        // Ensure the ball has completely passed the bottom paddle before scoring
+        if (ball.dy > 0) { // Only if the ball was moving downward
+            computerPaddle.score++;
+            resetBall();
+        }
     }
 }
 
 function checkPaddleCollision(paddle) {
-    return ball.y - ball.size < paddle.y + paddle.height &&
-           ball.y + ball.size > paddle.y &&
-           ball.x > paddle.x &&
-           ball.x < paddle.x + paddle.width;
+    // More precise collision detection to prevent sticking
+    return ball.y + ball.size > paddle.y && 
+           ball.y - ball.size < paddle.y + paddle.height &&
+           ball.x + ball.size > paddle.x && 
+           ball.x - ball.size < paddle.x + paddle.width;
 }
 
 function resetBall() {
     ball.x = canvas.width / 2;
     ball.y = canvas.height / 2;
     
-    // Set initial angle between -45 and 45 degrees
-    const angle = (Math.random() - 0.5) * Math.PI / 2;
+    // Set initial angle ensuring minimum horizontal movement to avoid straight up/down motion
+    let angle = (Math.random() - 0.5) * Math.PI / 2;
+    
+    // Ensure a minimum horizontal speed to prevent straight up/down loops
+    const minHorizontalSpeed = 1.5;
     ball.dx = ball.speed * Math.sin(angle);
+    
+    // If the horizontal speed is too low, adjust it
+    if (Math.abs(ball.dx) < minHorizontalSpeed) {
+        // Adjust the angle to ensure minimum horizontal movement
+        if (ball.dx >= 0) {
+            ball.dx = minHorizontalSpeed;
+        } else {
+            ball.dx = -minHorizontalSpeed;
+        }
+    }
+    
     ball.dy = ball.speed * Math.cos(angle) * (Math.random() > 0.5 ? 1 : -1);
+    
+    // Ensure there's a minimum vertical speed as well
+    const minVerticalSpeed = 1.5;
+    if (Math.abs(ball.dy) < minVerticalSpeed) {
+        if (ball.dy >= 0) {
+            ball.dy = minVerticalSpeed;
+        } else {
+            ball.dy = -minVerticalSpeed;
+        }
+    }
 }
 
 // Keyboard controls
